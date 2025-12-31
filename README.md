@@ -8,7 +8,7 @@ A beautiful web UI for browsing Claude Code conversation history.
 npx claude-run
 ```
 
-Then open http://localhost:12001 in your browser.
+The browser will open automatically at http://localhost:12001.
 
 ## Installation
 
@@ -33,6 +33,7 @@ Options:
   -V, --version        Show version number
   -p, --port <number>  Port to listen on (default: 12001)
   -d, --dir <path>     Claude directory (default: ~/.claude)
+  --no-open            Do not open browser automatically
   -h, --help           Show help
 ```
 
@@ -65,15 +66,6 @@ pnpm dev
 
 # Build for production
 pnpm build
-```
-
-## Project Structure
-
-```
-packages/
-  shared/     # Shared TypeScript types
-  server/     # Node.js backend (Hono + Commander)
-  web/        # React frontend (Vite + Tailwind)
 ```
 
 ## License
