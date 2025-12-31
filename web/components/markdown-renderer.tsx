@@ -123,7 +123,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer(
                     </span>
                     <CopyButton text={codeContent} />
                   </div>
-                  <pre className="text-xs text-zinc-300 bg-zinc-900/80 p-3 overflow-x-auto rounded-t-none!">
+                  <pre className="text-xs text-zinc-300 bg-zinc-900/80 p-3 overflow-x-auto">
                     <code>{codeContent}</code>
                   </pre>
                 </div>
@@ -175,10 +175,6 @@ export const MarkdownRenderer = memo(function MarkdownRenderer(
           thead: (props) => {
             const { children } = props;
             return <thead className="bg-zinc-900">{children}</thead>;
-          },
-          tbody: (props) => {
-            const { children } = props;
-            return <tbody>{children}</tbody>;
           },
           tr: (props) => {
             const { children } = props;

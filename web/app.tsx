@@ -63,11 +63,11 @@ function App() {
   return (
     <div className="flex h-screen bg-zinc-950 text-zinc-100">
       <aside className="w-80 border-r border-zinc-800/60 flex flex-col bg-zinc-950">
-        <div className="px-3 py-2 border-b border-zinc-800/60">
+        <div className="border-b border-zinc-800/60">
           <select
             value={selectedProject || ""}
             onChange={(e) => setSelectedProject(e.target.value || null)}
-            className="w-full bg-transparent text-zinc-300 text-sm focus:outline-none cursor-pointer"
+            className="w-full bg-transparent text-zinc-300 text-sm focus:outline-none cursor-pointer px-3 py-4"
           >
             <option value="">All Projects</option>
             {projects.map((project) => {
