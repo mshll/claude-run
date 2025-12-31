@@ -1,4 +1,5 @@
 import { Search, FileText, FolderOpen } from "lucide-react";
+import { CopyButton } from "./copy-button";
 
 interface GrepInput {
   pattern: string;
@@ -134,9 +135,12 @@ export function SearchResultRenderer(props: SearchResultRendererProps) {
           <div className="overflow-y-auto max-h-60">
             <ul className="divide-y divide-zinc-800/50">
               {displayLines.map((line, index) => (
-                <li key={index} className="flex items-center gap-2 px-3 py-1.5 hover:bg-zinc-800/30">
+                <li key={index} className="group flex items-center gap-2 px-3 py-1.5 hover:bg-zinc-800/30">
                   <FileText size={12} className="text-zinc-500 flex-shrink-0" />
-                  <span className="text-xs font-mono text-zinc-300 truncate">{line}</span>
+                  <span className="text-xs font-mono text-zinc-300 truncate flex-1">{line}</span>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <CopyButton text={line} />
+                  </div>
                 </li>
               ))}
             </ul>

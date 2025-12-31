@@ -1,5 +1,6 @@
 import { createTwoFilesPatch } from "diff";
 import { FileEdit, Plus, Minus, FilePlus2 } from "lucide-react";
+import { CopyButton } from "./copy-button";
 
 interface EditInput {
   file_path: string;
@@ -82,6 +83,7 @@ export function EditRenderer(props: EditRendererProps) {
                 {removedLines}
               </span>
             )}
+            <CopyButton text={input.file_path} />
           </div>
         </div>
         <div className="overflow-x-auto max-h-80 overflow-y-auto">
@@ -152,7 +154,10 @@ export function WriteRenderer(props: WriteRendererProps) {
         <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-700/50 bg-zinc-800/30">
           <FilePlus2 size={14} className="text-emerald-400" />
           <span className="text-xs font-mono text-zinc-300">{fileName}</span>
-          <span className="text-xs text-zinc-500 ml-auto">{lineCount} lines</span>
+          <div className="flex items-center gap-1 ml-auto">
+            <span className="text-xs text-zinc-500">{lineCount} lines</span>
+            <CopyButton text={input.file_path} />
+          </div>
         </div>
         <div className="overflow-x-auto max-h-60 overflow-y-auto">
           <pre className="text-xs font-mono p-3 text-zinc-300">

@@ -6,7 +6,7 @@ import { serve } from "@hono/node-server";
 import type { Server } from "http";
 import { ClaudeStorage } from "./storage.js";
 import { ClaudeWatcher } from "./watcher.js";
-import { join, dirname } from "path";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
@@ -51,6 +51,7 @@ export function createServer(options: ServerOptions) {
   app.get("/api/sessions/stream", async (c) => {
     return streamSSE(c, async (stream) => {
       let isConnected = true;
+      const knownSessions = new Map<string, number>();
 
       const cleanup = () => {
         isConnected = false;
@@ -63,10 +64,21 @@ export function createServer(options: ServerOptions) {
         }
         try {
           const sessions = await storage.getSessions();
-          await stream.writeSSE({
-            event: "sessions",
-            data: JSON.stringify(sessions),
+          const newOrUpdated = sessions.filter((s) => {
+            const known = knownSessions.get(s.id);
+            return known === undefined || known !== s.timestamp;
           });
+
+          for (const s of sessions) {
+            knownSessions.set(s.id, s.timestamp);
+          }
+
+          if (newOrUpdated.length > 0) {
+            await stream.writeSSE({
+              event: "sessionsUpdate",
+              data: JSON.stringify(newOrUpdated),
+            });
+          }
         } catch {
           cleanup();
         }
@@ -77,6 +89,10 @@ export function createServer(options: ServerOptions) {
 
       try {
         const sessions = await storage.getSessions();
+        for (const s of sessions) {
+          knownSessions.set(s.id, s.timestamp);
+        }
+
         await stream.writeSSE({
           event: "sessions",
           data: JSON.stringify(sessions),
@@ -181,6 +197,14 @@ export function createServer(options: ServerOptions) {
     }
   });
 
+  watcher.on("historyChange", () => {
+    storage.invalidateHistoryCache();
+  });
+
+  watcher.on("sessionChange", (sessionId: string, filePath: string) => {
+    storage.addToFileIndex(sessionId, filePath);
+  });
+
   watcher.start();
 
   let httpServer: Server | null = null;
@@ -190,7 +214,8 @@ export function createServer(options: ServerOptions) {
     port,
     storage,
     watcher,
-    start: () => {
+    start: async () => {
+      await storage.init();
       console.log(`\n  claude-run is running at http://localhost:${port}/\n`);
       httpServer = serve({
         fetch: app.fetch,

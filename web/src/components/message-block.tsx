@@ -30,6 +30,7 @@ import {
   SearchResultRenderer,
   ReadRenderer,
   FileContentRenderer,
+  AskQuestionRenderer,
 } from "./tool-renderers";
 
 interface MessageBlockProps {
@@ -266,6 +267,10 @@ function ToolInputRenderer(props: ToolInputRendererProps) {
     return <ReadRenderer input={input as { file_path: string; offset?: number; limit?: number }} />;
   }
 
+  if (name === "askuserquestion" && input.questions) {
+    return <AskQuestionRenderer input={input as { questions: Array<{ header: string; question: string; options: Array<{ label: string; description: string }>; multiSelect: boolean }> }} />;
+  }
+
   return (
     <pre className="text-xs text-slate-300 bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 mt-2 overflow-x-auto whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
       {JSON.stringify(input, null, 2)}
@@ -379,9 +384,10 @@ function ContentBlockRenderer(props: ContentBlockRendererProps) {
       toolName === "bash" ||
       toolName === "grep" ||
       toolName === "glob" ||
-      toolName === "read";
+      toolName === "read" ||
+      toolName === "askuserquestion";
 
-    const shouldAutoExpand = toolName === "todowrite";
+    const shouldAutoExpand = toolName === "todowrite" || toolName === "askuserquestion";
     const isExpanded = expanded || shouldAutoExpand;
 
     return (

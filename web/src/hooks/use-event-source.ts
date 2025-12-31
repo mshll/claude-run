@@ -1,26 +1,26 @@
 import { useEffect, useRef, useCallback } from "react";
 
-interface UseEventSourceOptions {
+interface EventHandler {
+  eventName: string;
   onMessage: (event: MessageEvent) => void;
+}
+
+interface UseEventSourceOptions {
+  events: EventHandler[];
   onError?: () => void;
-  eventName?: string;
   maxRetries?: number;
   baseDelay?: number;
 }
 
 export function useEventSource(url: string, options: UseEventSourceOptions) {
-  const {
-    onMessage,
-    onError,
-    eventName = "message",
-    maxRetries = 10,
-    baseDelay = 1000,
-  } = options;
+  const { events, onError, maxRetries = 10, baseDelay = 1000 } = options;
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const retryCountRef = useRef(0);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
 
   const connect = useCallback(() => {
     if (!mountedRef.current) {
@@ -34,10 +34,12 @@ export function useEventSource(url: string, options: UseEventSourceOptions) {
     const eventSource = new EventSource(url);
     eventSourceRef.current = eventSource;
 
-    eventSource.addEventListener(eventName, (event) => {
-      retryCountRef.current = 0;
-      onMessage(event);
-    });
+    for (const handler of eventsRef.current) {
+      eventSource.addEventListener(handler.eventName, (event) => {
+        retryCountRef.current = 0;
+        handler.onMessage(event);
+      });
+    }
 
     eventSource.onerror = () => {
       eventSource.close();
@@ -47,7 +49,10 @@ export function useEventSource(url: string, options: UseEventSourceOptions) {
       }
 
       if (retryCountRef.current < maxRetries) {
-        const delay = Math.min(baseDelay * Math.pow(2, retryCountRef.current), 30000);
+        const delay = Math.min(
+          baseDelay * Math.pow(2, retryCountRef.current),
+          30000
+        );
         retryCountRef.current++;
 
         retryTimeoutRef.current = setTimeout(() => {
@@ -57,7 +62,7 @@ export function useEventSource(url: string, options: UseEventSourceOptions) {
         onError?.();
       }
     };
-  }, [url, eventName, onMessage, onError, maxRetries, baseDelay]);
+  }, [url, onError, maxRetries, baseDelay]);
 
   useEffect(() => {
     mountedRef.current = true;

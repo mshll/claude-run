@@ -1,4 +1,5 @@
 import { FileText, FileCode } from "lucide-react";
+import { CopyButton } from "./copy-button";
 
 interface ReadInput {
   file_path: string;
@@ -74,13 +75,16 @@ export function ReadRenderer(props: ReadRendererProps) {
               {language}
             </span>
           )}
-          {(input.offset || input.limit) && (
-            <span className="text-xs text-zinc-500 ml-auto">
-              {input.offset && `from line ${input.offset}`}
-              {input.offset && input.limit && ", "}
-              {input.limit && `${input.limit} lines`}
-            </span>
-          )}
+          <div className="flex items-center gap-1 ml-auto">
+            {(input.offset || input.limit) && (
+              <span className="text-xs text-zinc-500 mr-1">
+                {input.offset && `from line ${input.offset}`}
+                {input.offset && input.limit && ", "}
+                {input.limit && `${input.limit} lines`}
+              </span>
+            )}
+            <CopyButton text={input.file_path} />
+          </div>
         </div>
       </div>
     </div>

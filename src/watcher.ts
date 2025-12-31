@@ -1,10 +1,10 @@
 import { watch, type FSWatcher } from "chokidar";
 import { EventEmitter } from "events";
-import { basename, dirname } from "path";
+import { basename, dirname, join } from "path";
 
 export interface WatcherEvents {
   historyChange: () => void;
-  sessionChange: (sessionId: string) => void;
+  sessionChange: (sessionId: string, filePath: string) => void;
   projectChange: (projectId: string) => void;
 }
 
@@ -24,14 +24,16 @@ export class ClaudeWatcher extends EventEmitter {
       return;
     }
 
-    const historyPath = `${this.claudeDir}/history.jsonl`;
-    const projectsDir = `${this.claudeDir}/projects`;
+    const historyPath = join(this.claudeDir, "history.jsonl");
+    const projectsDir = join(this.claudeDir, "projects");
+
+    const usePolling = process.env.CLAUDE_RUN_USE_POLLING === "1";
 
     this.watcher = watch([historyPath, projectsDir], {
       persistent: true,
       ignoreInitial: true,
-      usePolling: true,
-      interval: 100,
+      usePolling,
+      ...(usePolling && { interval: 100 }),
       depth: 2,
     });
 
@@ -56,13 +58,13 @@ export class ClaudeWatcher extends EventEmitter {
     this.debounceTimers.set(path, timer);
   }
 
-  private emitChange(path: string): void {
-    if (path.endsWith("history.jsonl")) {
+  private emitChange(filePath: string): void {
+    if (filePath.endsWith("history.jsonl")) {
       this.emit("historyChange");
-    } else if (path.endsWith(".jsonl")) {
-      const sessionId = basename(path, ".jsonl");
-      const projectId = basename(dirname(path));
-      this.emit("sessionChange", sessionId);
+    } else if (filePath.endsWith(".jsonl")) {
+      const sessionId = basename(filePath, ".jsonl");
+      const projectId = basename(dirname(filePath));
+      this.emit("sessionChange", sessionId, filePath);
       this.emit("projectChange", projectId);
     }
   }

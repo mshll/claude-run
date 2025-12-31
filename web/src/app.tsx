@@ -18,10 +18,23 @@ function App() {
       .catch(console.error);
   }, []);
 
-  const handleSessionsMessage = useCallback((event: MessageEvent) => {
-    const data = JSON.parse(event.data);
+  const handleSessionsFull = useCallback((event: MessageEvent) => {
+    const data: Session[] = JSON.parse(event.data);
     setSessions(data);
     setLoading(false);
+  }, []);
+
+  const handleSessionsUpdate = useCallback((event: MessageEvent) => {
+    const updates: Session[] = JSON.parse(event.data);
+    setSessions((prev) => {
+      const sessionMap = new Map(prev.map((s) => [s.id, s]));
+      for (const update of updates) {
+        sessionMap.set(update.id, update);
+      }
+      return Array.from(sessionMap.values()).sort(
+        (a, b) => b.timestamp - a.timestamp
+      );
+    });
   }, []);
 
   const handleSessionsError = useCallback(() => {
@@ -29,9 +42,11 @@ function App() {
   }, []);
 
   useEventSource("/api/sessions/stream", {
-    onMessage: handleSessionsMessage,
+    events: [
+      { eventName: "sessions", onMessage: handleSessionsFull },
+      { eventName: "sessionsUpdate", onMessage: handleSessionsUpdate },
+    ],
     onError: handleSessionsError,
-    eventName: "sessions",
   });
 
   const filteredSessions = useMemo(() => {
