@@ -56,7 +56,7 @@ export function BashRenderer(props: BashRendererProps) {
         </div>
         <div className="p-3 overflow-x-auto">
           <div className="flex items-start gap-2">
-            <pre className="text-xs font-mono m-0 p-0 bg-transparent text-zinc-200 whitespace-pre-wrap break-all">
+            <pre className="text-xs font-mono m-0 p-0 bg-transparent! text-zinc-200 whitespace-pre-wrap break-all">
               {command}
             </pre>
           </div>
