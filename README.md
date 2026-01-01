@@ -26,6 +26,8 @@ The browser will open automatically at http://localhost:12001.
 - **Real-time streaming** - Watch conversations update live as Claude responds
 - **Search** - Find sessions by prompt text or project name
 - **Filter by project** - Focus on specific projects
+- **Resume sessions** - Copy the resume command to continue any conversation in your terminal
+- **Collapsible sidebar** - Maximize your viewing area
 - **Dark mode** - Easy on the eyes
 - **Clean UI** - Familiar chat interface with collapsible tool calls
 
@@ -63,6 +65,8 @@ Claude Code stores conversation history in `~/.claude/`. This tool reads that da
 - **Session list** - All your conversations, sorted by recency
 - **Project filter** - Focus on a specific project
 - **Conversation view** - Full message history with tool calls
+- **Session header** - Shows conversation title, project name, and timestamp
+- **Resume command** - Copies the command to resume the conversation
 - **Real-time updates** - SSE streaming for live conversations
 
 ## Requirements
